@@ -1,0 +1,6 @@
+# Compiled source
+*.o
+*.a
+*.so
+sort/bin/
+sort/obj/

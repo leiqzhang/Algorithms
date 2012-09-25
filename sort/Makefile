@@ -12,10 +12,10 @@ obj/sort.o : src/sort.c inc/sort.h
 	gcc -fpic -Iinc  -c src/sort.c -o obj/sort.o
 
 .PNONY : test
-test : test/sort_test
+test : bin/sort_test
 
-test/sort_test : bin/libsort.a obj/sort_test.o
-	gcc obj/sort_test.o -Lbin -ltool -lsort -o test/sort_test
+bin/sort_test : bin/libsort.a obj/sort_test.o
+	gcc obj/sort_test.o -Lbin -ltool -lsort -o bin/sort_test
 
 obj/sort_test.o : test/sort_test.c inc/tool.h inc/sort.h
 	gcc  -Iinc -c test/sort_test.c  -o obj/sort_test.o
