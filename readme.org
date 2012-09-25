@@ -1,0 +1,8 @@
+#+TITLE:   算法实现
+#+AUTHOR:    Linusp
+#+EMAIL:     linusp1024@gmail.com
+#+DATE:      2012-09-25 二
+
+* 简介
+
+  使用C语言实现的一些算法
