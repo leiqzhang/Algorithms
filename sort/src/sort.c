@@ -2,6 +2,8 @@
 
 typedef int (*fun)(int,int);
 
+static void swap(int *first, int *second);
+
 /* 插入排序 */
 void isort(int *array, int len, fun compare)
 {
@@ -42,7 +44,7 @@ void bsort(int *array, int len, fun compare)
 void ssort(int *array, int len, fun compare)
 {
     /* 已知最好的步长序列，由Marcin Ciura设计 */
-    int gaps[]={1750, 701, 301, 132, 57, 23, 10, 4, 1};
+    int gaps[9]={1750, 701, 301, 132, 57, 23, 10, 4, 1};
     int index;
     int i = 0, j = 0;
     int step;                   /* 当前插入排序步长 */
@@ -54,7 +56,7 @@ void ssort(int *array, int len, fun compare)
 
         /* 按step为步长进行插入排序 */
         /* 和直接插入排序对比看看？ */
-        for (i = step; i < len; i += step) {
+        for (i = step; i < len; ++i) {
             key = array[i];
 
             j = i - step;
@@ -73,7 +75,8 @@ void ssort(int *array, int len, fun compare)
 /* 归并排序的本体 */
 static void msort_fun(int *array, int low, int high, fun compare);
 /* 合并函数 */
-static void merge(int *array, int low, int mid, int high, fun compare);
+static void
+merge(int *array, int low, int mid, int high, fun compare, int div);
 /* 归并排序 */
 void msort(int *array, int len, fun compare)
 {
@@ -90,13 +93,14 @@ msort_fun(int *array, int low, int high, fun compare)
         msort_fun(array, low, mid, compare); /* 对左子数组排序 */
         msort_fun(array, mid + 1, high, compare); /* 对右字数自排序 */
 
-        merge(array, low, mid, high, compare); /* 合并左右子数组使整体有序 */
+        merge(array, low, mid, high, compare, 1); /* 合并左右子数组使整体有序 */
     } /* 没错，完了 */
 }
 
 /* 合并函数 */
+/* 合并函数最后一个参数是为了与基数排序时按十进止位排序而设置的 */
 static void
-merge(int *array, int low, int mid, int high, fun compare)
+merge(int *array, int low, int mid, int high, fun compare, int div)
 {
     int len = high - low + 1;
     int *tmp = (int *)calloc(sizeof(int), len);
@@ -115,7 +119,7 @@ merge(int *array, int low, int mid, int high, fun compare)
     /* 从左子数组和右子数组中取最小元素拷贝到array中 */
     /* 左右子数组其中一个取完就退出循环 */
     while (left <= mid - low && right <= high - low) {
-        if (compare(tmp[left], tmp[right]))
+        if (compare(tmp[left] / div, tmp[right] / div))
             array[index++] = tmp[left++];
         else
             array[index++] = tmp[right++];
@@ -257,3 +261,129 @@ partition(int *array, int low, int high, fun compare)
 
     return left_end + 1;
 }
+
+/* 计数排序 */
+void csort(int *array, int len, fun compare)
+{
+    int largest = 0;          /* 数组中最大元素值 */
+    int most = 0;             /* 数组中最大元素值(升序)或最小元素值(降序) */
+    int counter;              /* 循环计数变量 */
+
+    int *freq;                /* freq数组用来记录每个元素出现的频率 */
+    /* dup是数组的一个副本 */
+    int *dup = (int *)calloc(sizeof(int), len);
+
+    most = largest = dup[0] = array[0];
+    for (counter = 1; counter != len; ++counter) {
+        if (!compare(array[counter], most)) /* 选出升序时最大值或降序时最小值 */
+            most = array[counter];
+        if (array[counter] > largest) /* 选出最大值 */
+            largest = array[counter];
+        dup[counter] = array[counter];
+    }
+
+    /* 分配largest+1个存储空间给freq数组 */
+    freq = (int *)calloc(sizeof(int), largest + 1);
+
+    /* 扫描数组,令 freq[key] = key值在array数组中出现的次数 */
+    for (counter = 0; counter != len; ++counter)
+        ++freq[dup[counter]];
+
+    /* 令freq[key]=key值的元素为在array数组中最大的序号(非下标) */
+    for (counter = 1; counter != most + 1; ++counter)
+        freq[counter] += freq[counter - 1];
+
+    /* freq[key]=key值在array数组中最大的序号 */
+    /* 则将key值放置到array数组的第freq[key]个 */
+    /* 位置上,即 array[freq[key]]=key */
+    for (counter = 0; counter != len; ++counter) {
+        if (most == largest)
+            array[freq[dup[counter]] - 1] = dup[counter];
+        else
+            array[len -freq[dup[counter]]] = dup[counter];
+        freq[dup[counter]] -= 1;
+    }
+
+    free(freq);                 /* 释放内存 */
+    free(dup);                  /* 释放内存 */
+}
+
+/* 计算整数的十进制位数 */
+static int digit_numbers(int number);
+/* 计算10的整数次幂 */
+static int ten_pow(int n);
+/* 基数排序 */
+void rsort(int *array, int len, fun compare)
+{
+    int max_digit_num = 0;          /* 数组中各个元素的最大十进制位数 */
+    int digit_num;                  /* 用于记录循环时当前元素的十进制位数 */
+    int counter = 0;                /* 循环计数变量 */
+    int div;                        /* 按位排序时用于取出十进制位 */
+
+    int step;
+    int low, mid, high;
+    
+    for (; counter != len; ++counter) { /* 计算最大十进制位数 */
+        digit_num = digit_numbers(array[counter]);
+        if (digit_num > max_digit_num)
+            max_digit_num = digit_num;
+    }
+
+    /* 从个位开始,逐次按十进制位排序 */
+    for (digit_num = 1; digit_num <= max_digit_num; ++digit_num) {
+        div = ten_pow(digit_num - 1);
+
+        /* 基数排序比须使用稳定排序,这里使用归并排序(非递归) */
+        for (counter = 1; counter < len; counter *= 2) { /* log(len)趟归并 */
+            step = counter -  1; /* 要归并的两段子数组的距离:第一个元素之间的距离 */
+            low = 0;
+            
+            while (low < len) {
+                mid  = low + step;
+                if (mid >= len) /* 防止数组越界 */
+                    mid = len - 1;
+                
+                high = mid + step + 1; /* 防止数组越界访问 */
+                if (high >= len)
+                    high = len - 1;
+                
+                merge(array, low, mid, high, compare, div);
+
+                low = high + 1;    /* 归并下一段 */
+            }
+        }
+
+    }
+}
+
+/* 计算一个数的十进制位数 */
+/* 为了尽量不调用外部的库,不使用math库里的对数函数 */
+static int digit_numbers(int number)
+{
+    if (number < 10)
+        return 1;
+    else
+        return 1 + digit_numbers(number / 10);
+}
+/* 计算10的整数次幂,理由同上 */
+static int ten_pow(int n)
+{
+    if (0 == n)
+        return 1;
+    else
+        return 10 * ten_pow(n - 1);
+}
+
+
+/*
+ * To swap the value of two integers.
+ */
+static void swap(int *first, int *second)
+{
+    if (first != second) {      /* to avoid the bug caused by same pointer */
+        *first = *first ^ *second;
+        *second= *first ^ *second;
+        *first = *first ^ *second;
+    }
+}
+
