@@ -91,7 +91,7 @@ msort_fun(int *array, int low, int high, fun compare)
     if (low < high) {
         int mid = (high + low) / 2;           /* 将数组划分为两部分 */
         msort_fun(array, low, mid, compare); /* 对左子数组排序 */
-        msort_fun(array, mid + 1, high, compare); /* 对右字数自排序 */
+        msort_fun(array, mid + 1, high, compare); /* 对右子数组排序 */
 
         merge(array, low, mid, high, compare, 1); /* 合并左右子数组使整体有序 */
     } /* 没错，完了 */
