@@ -18,7 +18,8 @@ void isort(int *array, int len, fun compare)
         j = i - step;
 
         /* 将array[i]插入到array[0...i-1]中去 */
-        while (!compare(array[j], key) && j >= 0) {
+        /* 必须先检查j是否大于0，否则array[j]可能导致越界访问 */
+        while (j >= 0 && !compare(array[j], key)) {
             array[j + step] = array[j];
             j -= step;
         }
@@ -60,8 +61,9 @@ void ssort(int *array, int len, fun compare)
             key = array[i];
 
             j = i - step;
-
-            while (!compare(array[j], key) && j >= 0) {
+            
+            /* 必须先检查j是否大于0，否则array[j]可能导致越界访问 */
+            while (j >= 0 && !compare(array[j], key)) {
                 array[j + step] = array[j];
                 j -= step;
             }

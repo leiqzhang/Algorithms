@@ -4,3 +4,5 @@
 *.so
 sort/bin/
 sort/obj/
+DynamicProgramming/bin/
+DynamicProgramming/obj/

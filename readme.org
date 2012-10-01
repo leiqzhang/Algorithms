@@ -7,14 +7,13 @@
   + 贪心法
   + 回溯法
 
-  在Algorithms目录下的每一个目录对应以上列表中的一个部分，是一个完整的项目目录，其结构为:
+  每个目录的结构为:
   + src : 实现功能的C语言源文件
   + inc : 相应算法功能的功能接口
   + obj : 用于存放obj文件的目录,该目录未同步至github，需自行创建
   + test: 用于测试算法实现的测试程序
   + bin : 一切可执行程序的指定复活点，该目录未同步至github，需自行创建
   + Makefile: 只是Makefile而已
-
   如果需要对算法实现进行测试，请阅读对应的Makefile，对项目进行编译即可。
 
 * 排序算法实现
@@ -30,3 +29,12 @@
   + 基数排序
 
   每种排序算法实现暂时都只支持int型数据的操作，且要求指定是升序还是降序(对应的函数less与greater在tool.c中实现。
+
+* 动态规划
+
+  动态规划问题:
+  + 最长公共子序列(Longest Common Subsequence)
+  + 背包问题(0-1 Knapsack Problem)
+  + 最长上升子序列(Longest Incresing Subsequence)
+  + 矩阵链乘法问题
+  + 斐波纳契数列
